@@ -1,0 +1,70 @@
+-- 1. Fetch raw script content
+local rawUrl = "https://raw.githubusercontent.com/boniloyzin-cloud/Niles-script-by/refs/heads/main/raw%20(5).txt"
+local success, scriptContent = pcall(function()
+    return game:HttpGet(rawUrl)
+end)
+
+if success and scriptContent then
+    -- 2. Direct string replacements for name rebranding
+    local modifiedScript = scriptContent
+        :gsub("Niles", "DAVI")
+        :gsub("niles", "DAVI")
+        :gsub("KT FTAP HUB", "DAVI")
+        :gsub("PoopHub", "DAVI")
+
+    -- 3. Display transparent "Niles byDAVI" text on screen with no background
+    task.spawn(function()
+        pcall(function()
+            local Players = game:GetService("Players")
+            local CoreGui = game:GetService("CoreGui")
+            local localPlayer = Players.LocalPlayer
+
+            -- Parent to CoreGui or PlayerGui
+            local parentGui = CoreGui
+            local successParent = pcall(function() local test = CoreGui.Name end)
+            if not successParent then
+                parentGui = localPlayer:WaitForChild("PlayerGui")
+            end
+
+            -- Clean up old label if it exists
+            if parentGui:FindFirstChild("NilesByDaviOverlay") then
+                parentGui.NilesByDaviOverlay:Destroy()
+            end
+
+            -- Create ScreenGui
+            local screenGui = Instance.new("ScreenGui")
+            screenGui.Name = "NilesByDaviOverlay"
+            screenGui.ResetOnSpawn = false
+            screenGui.Parent = parentGui
+
+            -- Create Transparent TextLabel
+            local label = Instance.new("TextLabel")
+            label.Name = "OverlayLabel"
+            label.Size = UDim2.new(0, 300, 0, 50)
+            label.Position = UDim2.new(0.5, -150, 0.05, 0) -- Top center of screen
+            label.BackgroundTransparency = 1 -- Fully transparent background
+            label.Text = "Niles byDAVI"
+            label.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
+            label.TextSize = 28
+            label.Font = Enum.Font.SourceSansBold
+            label.TextStrokeTransparency = 0 -- Outline to make it visible anywhere
+            label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+            label.Parent = screenGui
+        end)
+    end)
+
+    -- 4. Execute modified script
+    local executeFunc, err = loadstring(modifiedScript)
+    if executeFunc then
+        executeFunc()
+    else
+        local fallbackFunc, fallbackErr = loadstring(scriptContent)
+        if fallbackFunc then
+            fallbackFunc()
+        else
+            warn("Failed to load script: ", fallbackErr or err)
+        end
+    end
+else
+    warn("Failed to fetch script from URL")
+end
